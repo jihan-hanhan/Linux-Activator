@@ -131,7 +131,7 @@ product-key ""
 on-boot-unactivated {
     // Raise the "Activate Linux" watermark.  The pgrep guard keeps it
     // from ever starting twice.  Delete the line to disable watermark.
-    sh "pgrep -x activate-linux >/dev/null 2>&1 || activate-linux -t 'Activate Linux' -m 'Go to Settings to activate Linux.'"
+    sh "command -v activate-linux >/dev/null 2>&1 && { pgrep -x activate-linux >/dev/null 2>&1 || activate-linux -t 'Activate Linux' -m 'Go to Settings to activate Linux.'; }"
 
     // Add your own, e.g.:
     // spawn "notify-send" "Linux is not activated"
@@ -141,7 +141,7 @@ on-boot-unactivated {
 // Keeps the watermark alive if the user kills it.  Empty this block
 // if you prefer one-shot behaviour.
 on-unactivated-tick {
-    sh "pgrep -x activate-linux >/dev/null 2>&1 || activate-linux -t 'Activate Linux' -m 'Go to Settings to activate Linux.'"
+    sh "command -v activate-linux >/dev/null 2>&1 && { pgrep -x activate-linux >/dev/null 2>&1 || activate-linux -t 'Activate Linux' -m 'Go to Settings to activate Linux.'; }"
 }
 
 // ---- once at boot, when already activated --------------------------
@@ -161,7 +161,7 @@ on-activate {
 
 // ---- every failed activation attempt (activation UI) ---------------
 on-activation-failed {
-    sh "pgrep -x activate-linux >/dev/null 2>&1 || activate-linux -t 'Activate Linux' -m 'Go to Settings to activate Linux.'"
+    sh "command -v activate-linux >/dev/null 2>&1 && { pgrep -x activate-linux >/dev/null 2>&1 || activate-linux -t 'Activate Linux' -m 'Go to Settings to activate Linux.'; }"
 }
 )KDL";
 }

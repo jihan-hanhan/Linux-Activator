@@ -24,7 +24,14 @@ fi
 echo "[3/4] 初始化配置文件…"
 "$PREFIX/activate" --init
 
-echo "[4/4] 配置登录自启…"
+echo "[4/4] 配置登录自启(桌面环境就绪后执行)…"
+
+# 清理旧版 systemd 用户服务(若存在)
+systemctl --user disable --now activate-linux.service 2>/dev/null || true
+rm -f "$HOME/.config/systemd/user/activate-linux.service"
+systemctl --user daemon-reload 2>/dev/null || true
+
+# XDG autostart: GNOME/KDE/Xfce 等都会在会话就绪后带着完整环境执行它
 mkdir -p "$HOME/.config/autostart"
 cat > "$HOME/.config/autostart/activate-linux.desktop" <<EOF
 [Desktop Entry]
@@ -35,22 +42,7 @@ Exec=$PREFIX/activate-daemon
 Terminal=false
 NoDisplay=true
 X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Delay=3
 EOF
-
-mkdir -p "$HOME/.config/systemd/user"
-cat > "$HOME/.config/systemd/user/activate-linux.service" <<EOF
-[Unit]
-Description=Desktop Activation Service
-After=graphical-session.target
-
-[Service]
-ExecStart=$PREFIX/activate-daemon
-Restart=on-failure
-
-[Install]
-WantedBy=default.target
-EOF
-systemctl --user daemon-reload 2>/dev/null || true
-systemctl --user enable --now activate-linux.service 2>/dev/null || true
 
 echo "完成。"
